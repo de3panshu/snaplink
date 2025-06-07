@@ -1,5 +1,5 @@
 <h1 align="center">
-  <img src="./main/resources/static/images/snaplink-logo.png" alt="SnapLink Logo" width="50" style="vertical-align: middle;"/>SnapLink
+  <img src="src/main/resources/static/images/snaplink-logo.png" alt="SnapLink Logo" width="50" style="vertical-align: middle;"/>SnapLink
 </h1>
 
 

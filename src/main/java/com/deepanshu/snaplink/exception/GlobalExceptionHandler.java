@@ -12,4 +12,17 @@ public class GlobalExceptionHandler {
     public ResponseDto handleAssertionError(AssertionError ex){
         return ResponseDto.builder().message(ex.getMessage()).statusCode(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
+
+    @ExceptionHandler(DuplicateURLException.class)
+    public ResponseDto handleDuplicateURLException(DuplicateURLException ex){
+        return ResponseDto.builder().message(ex.getMessage()).statusCode(HttpStatus.CONFLICT).build();
+    }
+    @ExceptionHandler(SnapLinkException.class)
+    public ResponseDto handleSnapLinkException(SnapLinkException ex){
+        return ResponseDto.builder()
+                .message(ex.getMessage())
+                .success(ex.isSuccess())
+                .data(ex.getData())
+                .statusCode(ex.getStatusCode()).build();
+    }
 }

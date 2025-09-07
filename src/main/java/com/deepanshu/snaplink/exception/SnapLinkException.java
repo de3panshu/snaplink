@@ -1,11 +1,10 @@
 package com.deepanshu.snaplink.exception;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
 @Getter
-public class SnapLinkException extends Exception{
+public class SnapLinkException extends RuntimeException{
     private final HttpStatus statusCode;
     private final boolean success;
     private final Object data;

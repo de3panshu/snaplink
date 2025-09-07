@@ -9,6 +9,7 @@ import java.net.URI;
 @Builder
 public class ShortUrlCreateResponseDto {
     private int sid;
+    private int oid;
     private URI shortUrl;
     private URI originalUrl;
     private String title;

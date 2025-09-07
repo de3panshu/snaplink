@@ -8,11 +8,10 @@ import com.deepanshu.snaplink.exception.SnapLinkException;
 import com.deepanshu.snaplink.repo.OriginalUrlRepo;
 import com.deepanshu.snaplink.repo.ShortUrlRepo;
 import com.deepanshu.snaplink.service.ShortUrlService;
-import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import java.net.URI;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -26,26 +25,28 @@ public class ShortUrlServiceImpl implements ShortUrlService {
     private OriginalUrlRepo originalUrlRepo;
 
     @Override
-    public Optional<ShortUrl> addShortUrl(ShortUrlCreateRequestDto shortUrl){
-        ShortUrl toBeAddShortUrl  = null;
-        if(shortUrl.getSid() == -1){
-            toBeAddShortUrl = ShortUrl
-                    .builder()
-                    .shortUrl(shortUrl.getShortUrl())
-                    .originalUrls(List.of(OriginalUrl.builder()
-                            .metaTitle(shortUrl.getTitle())
-                            .metaDescription(shortUrl.getDescription())
-                            .build()))
-                    .build();
-            toBeAddShortUrl = shortUrlRepo.save(toBeAddShortUrl);
-        }
+    public Optional<ShortUrl> addShortUrl(ShortUrlCreateRequestDto shortUrl) {
+        ShortUrl toBeAddShortUrl = ShortUrl.builder()
+                .shortUrl(generateShortUrl(shortUrl.getShortUrl(), shortUrl.getOriginalUrl().toString()))
+                .build();
+
+        OriginalUrl originalUrl = OriginalUrl.builder()
+                .metaTitle(shortUrl.getTitle())
+                .url(shortUrl.getOriginalUrl().toString())
+                .metaDescription(shortUrl.getDescription())
+                .shortUrl(toBeAddShortUrl)
+                .build();
+
+        toBeAddShortUrl.setOriginalUrls(List.of(originalUrl));
+
+        toBeAddShortUrl = shortUrlRepo.save(toBeAddShortUrl);
+
         return Optional.of(toBeAddShortUrl);
     }
 
-    @SneakyThrows
     @Override
     public Optional<OriginalUrl> addOriginalUrl(ShortUrlCreateRequestDto shortUrlDto){
-        OriginalUrl originalUrl = null;
+        OriginalUrl originalUrl;
         if(shortUrlDto.getSid() != -1){//adding only the Original URL correspond to the given short URL Id
             ShortUrl shortUrl = shortUrlRepo.findById(shortUrlDto.getSid())
                     .orElseThrow(()->new SnapLinkException(
@@ -69,5 +70,20 @@ public class ShortUrlServiceImpl implements ShortUrlService {
                     null);
         }
         return Optional.of(originalUrl);
+    }
+
+    private String generateShortUrl(String shortUrl,String originalUrl) throws DuplicateURLException {
+        if(shortUrl == null || shortUrl.isBlank() || shortUrl.isEmpty()){
+            shortUrl = UUID.randomUUID().toString();
+        }
+        else {
+            if(isShortUrlPresentInDB(shortUrl)){
+                throw new DuplicateURLException(shortUrl);
+            }
+        }
+        return shortUrl;
+    }
+    private boolean isShortUrlPresentInDB(String url){//always looks for short URL bcoz original url can be duplicate by two different users but short url should be unique
+        return false;
     }
 }
